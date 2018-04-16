@@ -936,12 +936,30 @@
     define('QR_IMAGE', true);
 
     class QRimage {
-    
+        
+        //基础的黑点像素（最小）
+        const basePixel=5;
+        //生成基础二维码后变成用户要求大小的放大倍数
+        private static $magSize;
+
         //----------------------------------------------------------------------
-        public static function png($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE) 
+        public static function png($frame, $filename = false, $pixelPerPoint = 5, $outerFrame = 5,$saveandprint=FALSE,$mode,$filePath) 
         {
-            $image = self::image($frame, $pixelPerPoint, $outerFrame);
-            
+            switch ($mode) {
+                case 'image':
+                    $image = self::image($frame, $pixelPerPoint, $outerFrame);
+                    break;              
+                case 'Background':
+                    $image = self::imageBackground($frame, $pixelPerPoint, $outerFrame,$filePath);
+                    break;
+                default:
+                    echo '选择模式';
+                    return;
+            }
+            if (is_string($image)) {
+                echo $image;
+                return;
+            }
             if ($filename === false) {
                 Header("Content-type: image/png");
                 ImagePng($image);
@@ -975,20 +993,22 @@
         }
         
         //----------------------------------------------------------------------
-        private static function image($frame, $pixelPerPoint = 4, $outerFrame = 4) 
+        private static function imageBackground($frame, $pixelPerPoint = 4, $outerFrame = 4,$backGroundPath) 
         {
             $h = count($frame);
             $w = strlen($frame[0]);
             
-            $imgW = $w*5 + 2*$outerFrame;
-            $imgH = $h*5 + 2*$outerFrame;
+            self::$magSize=($pixelPerPoint/self::basePixel);
+            $imgW = $w*self::basePixel;
+            $imgH = $h*self::basePixel;
             
             $base_image =ImageCreate($imgW, $imgH);
             
-            $col[0] = ImageColorAllocatealpha($base_image,255,255,255,127);
+            $col[0] = ImageColorAllocatealpha($base_image,255,255,255,0);
             $col[1] = ImageColorAllocatealpha($base_image,0,0,0,0);
+            $alpha = ImageColorAllocatealpha($base_image,0,0,0,127);
 
-            imagefill($base_image, 0, 0, $col[0]);
+            imagefill($base_image, 0, 0, $alpha);
 
             for($y=0; $y<$h; $y++) {
                 for($x=0; $x<$w; $x++) {
@@ -996,25 +1016,41 @@
                         for ($i=0; $i < 5; $i++) { 
                             for ($j=0; $j < 5; $j++) {
                                 if ($i==2 && $j==2) {
-                                    ImageSetPixel($base_image,$x*5+$outerFrame+$i,$y*5+$outerFrame+$j,$col[1]); 
+                                    ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[1]); 
                                 }else if($x<7&&$y<7){
                                     //左上角定位符
-                                    ImageSetPixel($base_image,$x*5+$outerFrame+$i,$y*5+$outerFrame+$j,$col[1]);
+                                    ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[1]);
                                 }else if($x>21&&$y<7){
                                     //右上角定位符
-                                    ImageSetPixel($base_image,$x*5+$outerFrame+$i,$y*5+$outerFrame+$j,$col[1]);
+                                    ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[1]);
                                 }else if($y==6){
                                      //横向定位符
-                                     ImageSetPixel($base_image,$x*5+$outerFrame+$i,$y*5+$outerFrame+$j,$col[1]);
+                                     ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[1]);
                                 }else if($x==6){
                                     //纵向定位符
-                                    ImageSetPixel($base_image,$x*5+$outerFrame+$i,$y*5+$outerFrame+$j,$col[1]);
+                                    ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[1]);
                                 }else if($x<7&&$y>21){
                                     //左下定位符
-                                    ImageSetPixel($base_image,$x*5+$outerFrame+$i,$y*5+$outerFrame+$j,$col[1]);
+                                    ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[1]);
                                 }else if($x>19&&$y>19&&$x<25&&$y<25){
                                     //右下定位符
-                                    ImageSetPixel($base_image,$x*5+$outerFrame+$i,$y*5+$outerFrame+$j,$col[1]);
+                                    ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[1]);
+                                }
+
+                            }
+                        }
+                    }
+                    if ($frame[$y][$x] == '0' && !($x<7&&$y<7)&&!($x>21&&$y<7)&&!($x<7&&$y>21)&&!($x>19&&$y>19&&$x<25&&$y<25)) {
+                        for ($i=0; $i < 5; $i++) { 
+                            for ($j=0; $j < 5; $j++) {
+                                if ($i==2 && $j==2) {
+                                    ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[0]); 
+                                }else if($y==6){
+                                     //横向定位符
+                                     ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[0]);
+                                }else if($x==6){
+                                    //纵向定位符
+                                    ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[0]);
                                 }
 
                             }
@@ -1023,15 +1059,48 @@
                 }
             }
             
-            $target_image =ImageCreate($imgW * 2, $imgH * 2);
-            ImageCopyResized($target_image, $base_image, 0, 0, 0, 0, $imgW * 2, $imgH * 2, $imgW, $imgH);
+            $target_image =ImageCreate($imgW*self::$magSize, $imgH*self::$magSize );
+            ImageCopyResized($target_image, $base_image, 0, 0, 0, 0, $imgW*self::$magSize + 2*$outerFrame, $imgH*self::$magSize + 2*$outerFrame, $imgW, $imgH);
             ImageDestroy($base_image);
-            
-            return $target_image;
+            return self::imageMerage($target_image,$backGroundPath);
         }
 
+        private static function imageMerage($targetQRcode,$backGroundPath)
+        {
+            try{
+                $type = strtolower(pathinfo($backGroundPath, PATHINFO_EXTENSION));
+            }catch(Exception $e){
+                return '未知图片格式';
+            }
+            switch ($type) {
+                case 'jpg'||'jpeg':
+                    $img = imagecreatefromjpeg($backGroundPath);
+                    break;
+                case 'png':
+                    $img = imagecreatefrompng($backGroundPath);
+                    break;
+                case 'bmp':
+                    $img = imagecreatefrombmp($backGroundPath);
+                    break;
+                case 'gif':
+                    //TODO
+                break;
+                default:
+                    return '未知图片格式';
+            }
+            $qrcodesx = imagesx($targetQRcode);
+            $qrcodesy = imagesy($targetQRcode);
+            $background =imagecreatetruecolor($qrcodesx,$qrcodesy);
+            ImageCopyResized($background, $img, 0, 0, 0, 0,$qrcodesx,$qrcodesy,imagesx($img), imagesy($img));
 
-        private static function imageBack($frame, $pixelPerPoint = 4, $outerFrame = 4) 
+            ImageDestroy($img);
+
+            imagecopyResized($background, $targetQRcode, 0, 0, 0, 0, imagesx($background), imagesy($background),$qrcodesx, $qrcodesy);
+
+            return $background;
+        } 
+
+        private static function image($frame, $pixelPerPoint = 4, $outerFrame = 4) 
         {
             $h = count($frame);
             $w = strlen($frame[0]);
@@ -3147,10 +3216,10 @@
         }
         
         //----------------------------------------------------------------------
-        public static function png($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false) 
+        public static function png($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false,$mode='image',$filePath) 
         {
             $enc = QRencode::factory($level, $size, $margin);
-            return $enc->encodePNG($text, $outfile, $saveandprint=false);
+            return $enc->encodePNG($text, $outfile, $saveandprint=false,$mode,$filePath);
         }
 
         //----------------------------------------------------------------------
@@ -3344,7 +3413,7 @@
         }
         
         //----------------------------------------------------------------------
-        public function encodePNG($intext, $outfile = false,$saveandprint=false) 
+        public function encodePNG($intext, $outfile = false,$saveandprint=false,$mode,$filePath) 
         {
             try {
             
@@ -3358,7 +3427,8 @@
                 
                 $maxSize = (int)(QR_PNG_MAXIMUM_SIZE / (count($tab)+2*$this->margin));
                 
-                return QRimage::png($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint);
+                $image = QRimage::png($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint,$mode,$filePath);
+                return $image;
             } catch (Exception $e) {
             
                 QRtools::log($outfile, $e->getMessage());
