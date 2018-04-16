@@ -1009,7 +1009,8 @@
             $alpha = ImageColorAllocatealpha($base_image,0,0,0,127);
 
             imagefill($base_image, 0, 0, $alpha);
-
+            
+            //黑点
             for($y=0; $y<$h; $y++) {
                 for($x=0; $x<$w; $x++) {
                     if ($frame[$y][$x] == '1') {
@@ -1020,19 +1021,19 @@
                                 }else if($x<7&&$y<7){
                                     //左上角定位符
                                     ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[1]);
-                                }else if($x>21&&$y<7){
+                                }else if($x>($w-8)&&$y<7){
                                     //右上角定位符
                                     ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[1]);
-                                }else if($y==6){
-                                     //横向定位符
-                                     ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[1]);
-                                }else if($x==6){
-                                    //纵向定位符
-                                    ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[1]);
-                                }else if($x<7&&$y>21){
+                                // }else if($y==6){
+                                //      //横向定位符
+                                //      ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[1]);
+                                // }else if($x==6){
+                                //     //纵向定位符
+                                //     ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[1]);
+                                }else if($x<7&&$y>($h-8)){
                                     //左下定位符
                                     ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[1]);
-                                }else if($x>19&&$y>19&&$x<25&&$y<25){
+                                }else if($x>($w-10)&&$y>($h-10)&&$x<($w-4)&&$y<($h-4)){
                                     //右下定位符
                                     ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[1]);
                                 }
@@ -1040,19 +1041,20 @@
                             }
                         }
                     }
-                    if ($frame[$y][$x] == '0' && !($x<7&&$y<7)&&!($x>21&&$y<7)&&!($x<7&&$y>21)&&!($x>19&&$y>19&&$x<25&&$y<25)) {
+
+                    //白点
+                    if ($frame[$y][$x] == '0' && !($x<7&&$y<7)&&!($x>($w-7)&&$y<7)&&!($x<7&&$y>($h-7))&&!($x>($w-9)&&$y>($h-9)&&$x<($w-4)&&$y<($h-4))) {
                         for ($i=0; $i < 5; $i++) { 
                             for ($j=0; $j < 5; $j++) {
                                 if ($i==2 && $j==2) {
                                     ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[0]); 
-                                }else if($y==6){
-                                     //横向定位符
-                                     ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[0]);
-                                }else if($x==6){
-                                    //纵向定位符
-                                    ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[0]);
+                                // }else if($y==6){
+                                //      //横向定位符
+                                //      ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[0]);
+                                // }else if($x==6){
+                                //     //纵向定位符
+                                //     ImageSetPixel($base_image,$x*self::basePixel+$outerFrame+$i,$y*self::basePixel+$outerFrame+$j,$col[0]);
                                 }
-
                             }
                         }
                     }

@@ -1,9 +1,9 @@
 <?php
 include 'phpqrcode/phpqrcode.php';
     $qrConf = array(
-        'data'  	=> 'http://www.baidu.com',
+        'data'  	=> 'https://www.baidu.com',
         'level'     => 'H',
-        'size'	    => 20,
+        'size'	    => 15,
         'mode'      => 'Background',
         'filePath'  => 'example/download.jpg'
     );  
