@@ -943,19 +943,24 @@
         private static $magSize;
 
         //----------------------------------------------------------------------
-        public static function png($frame, $filename = false, $pixelPerPoint = 5, $outerFrame = 5,$saveandprint=FALSE,$mode,$filePath) 
+        public static function png($frame, $filename = false, $pixelPerPoint = 5, $outerFrame = 5,$saveandprint=FALSE,$mode,$other) 
         {
+            $mode = strtolower($mode);
             switch ($mode) {
-                case 'image':
+                case 'normal':
                     $image = self::image($frame, $pixelPerPoint, $outerFrame);
                     break;              
-                case 'Background':
-                    $image = self::imageBackground($frame, $pixelPerPoint, $outerFrame,$filePath);
+                case 'background':
+                    $image = self::imageBackground($frame, $pixelPerPoint, $outerFrame,$other['filePath']);
+                    break;
+                case 'emoji':
+                    $image = self::imageEmoji($frame, $pixelPerPoint, $outerFrame,$other['emoji']);
                     break;
                 default:
                     echo '选择模式';
                     return;
             }
+            
             if (is_string($image)) {
                 echo $image;
                 return;
@@ -1067,22 +1072,22 @@
             return self::imageMerage($target_image,$backGroundPath);
         }
 
-        private static function imageMerage($targetQRcode,$backGroundPath)
+        private static function createImage($image)
         {
             try{
-                $type = strtolower(pathinfo($backGroundPath, PATHINFO_EXTENSION));
+                $type = strtolower(pathinfo($image, PATHINFO_EXTENSION));
             }catch(Exception $e){
                 return '未知图片格式';
             }
             switch ($type) {
                 case 'jpg'||'jpeg':
-                    $img = imagecreatefromjpeg($backGroundPath);
+                    $img = imagecreatefromjpeg($image);
                     break;
                 case 'png':
-                    $img = imagecreatefrompng($backGroundPath);
+                    $img = imagecreatefrompng($image);
                     break;
                 case 'bmp':
-                    $img = imagecreatefrombmp($backGroundPath);
+                    $img = imagecreatefrombmp($image);
                     break;
                 case 'gif':
                     //TODO
@@ -1090,6 +1095,12 @@
                 default:
                     return '未知图片格式';
             }
+            return $img;
+        }
+
+        private static function imageMerage($targetQRcode,$backGroundPath)
+        {
+            $background = self::createImage($backGroundPath);
             $qrcodesx = imagesx($targetQRcode);
             $qrcodesy = imagesy($targetQRcode);
             $background =imagecreatetruecolor($qrcodesx,$qrcodesy);
@@ -3218,10 +3229,10 @@
         }
         
         //----------------------------------------------------------------------
-        public static function png($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false,$mode='image',$filePath) 
+        public static function png($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false,$mode='image',$other) 
         {
             $enc = QRencode::factory($level, $size, $margin);
-            return $enc->encodePNG($text, $outfile, $saveandprint=false,$mode,$filePath);
+            return $enc->encodePNG($text, $outfile, $saveandprint=false,$mode,$other);
         }
 
         //----------------------------------------------------------------------
@@ -3415,7 +3426,7 @@
         }
         
         //----------------------------------------------------------------------
-        public function encodePNG($intext, $outfile = false,$saveandprint=false,$mode,$filePath) 
+        public function encodePNG($intext, $outfile = false,$saveandprint=false,$mode,$other) 
         {
             try {
             
@@ -3429,7 +3440,7 @@
                 
                 $maxSize = (int)(QR_PNG_MAXIMUM_SIZE / (count($tab)+2*$this->margin));
                 
-                $image = QRimage::png($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint,$mode,$filePath);
+                $image = QRimage::png($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint,$mode,$other);
                 return $image;
             } catch (Exception $e) {
             
