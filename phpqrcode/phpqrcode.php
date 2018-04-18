@@ -954,7 +954,7 @@
                     $image = self::imageBackground($frame, $pixelPerPoint, $outerFrame,$other['filePath']);
                     break;
                 case 'emoji':
-                    $image = self::imageEmoji($frame, $pixelPerPoint, $outerFrame,$other['emoji']);
+                    $image = self::imageEmoji($frame,$other['emoji']);
                     break;
                 default:
                     echo '选择模式';
@@ -996,8 +996,28 @@
             
             ImageDestroy($image);
         }
+
+        private static function imageEmoji($frame,$emoji)
+        {   
+            $h = count($frame);
+            $w = strlen($frame[0]);
+            ob_start();
+            for($y=0; $y<$h; $y++) {
+                for($x=0; $x<$w; $x++) {
+                    if ($frame[$y][$x]=='1'){
+                        echo '▇▇▇';
+                    }else{
+                        echo '&ensp;&thinsp;&thinsp;&thinsp;&thinsp;&thinsp;';
+                    }
+                }
+                echo "<br/>";
+            }
+            $output = ob_get_contents();
+            ob_end_clean();
+            return $output;
+        }
         
-        //----------------------------------------------------------------------
+        //用图片作为整张二维码的背景图
         private static function imageBackground($frame, $pixelPerPoint = 4, $outerFrame = 4,$backGroundPath) 
         {
             $h = count($frame);
