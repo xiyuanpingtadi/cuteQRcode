@@ -1002,16 +1002,21 @@
             $h = count($frame);
             $w = strlen($frame[0]);
             ob_start();
+            echo '<table cellpadding="-20px" style="border:-2px;">';
             for($y=0; $y<$h; $y++) {
+                echo '<tr>';
                 for($x=0; $x<$w; $x++) {
+                    echo '<td>';
                     if ($frame[$y][$x]=='1'){
-                        echo '▇▇▇';
+                            echo $emoji;
                     }else{
-                        echo '&ensp;&thinsp;&thinsp;&thinsp;&thinsp;&thinsp;';
+                        echo '&nbsp;';
                     }
+                    echo '</td>';
                 }
-                echo "<br/>";
+                echo '</tr>';
             }
+            echo '</table>';
             $output = ob_get_contents();
             ob_end_clean();
             return $output;

@@ -6,7 +6,7 @@ include 'phpqrcode/phpqrcode.php';
         'size'	    => 15,
         'mode'      => 'emoji',
         'other'     => array('filePath' => '', 
-                             'emoji'    => '💻'
+                             'emoji'    => '😊'
                         )
     );  
     $qrHander = \QRcode::png($qrConf['data'], 'output.png', 'H', $qrConf['size'],0,$saveandprint=false,$qrConf['mode'],$qrConf['other']);
