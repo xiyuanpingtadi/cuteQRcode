@@ -1,18 +1,16 @@
 <?php
-require 'vendor/autoload.php';
-require 'phpqrcode/phpqrcode.php';
+include 'phpqrcode/phpqrcode.php';
     $qrConf = array(
-        'data'  	=> 'https://github.com/',
+        'data'  	=> 'http://www.baidu.com',
         'level'     => 'H',
         'size'	    => 15,
-        'mode'      => 'background',
-        'other'     => array('filePath' => 'example/example_gif.gif', 
-                             'string'    => '🌆' //like ▇▇▇ or 🌆
+        'mode'      => 'emoji',
+        'other'     => array('filePath' => '', 
+                             'emoji'    => '😊'
                         )
     );  
-    $qrHander = \QRcode::png($qrConf['data'], false, 'H', $qrConf['size'],0,$saveandprint=false,$qrConf['mode'],$qrConf['other']);
+    $qrHander = \QRcode::png($qrConf['data'], 'output.png', 'H', $qrConf['size'],0,$saveandprint=false,$qrConf['mode'],$qrConf['other']);
 
-    // echo $qrHander;
-    header("Content-type: image/gif");
-    $qrHander->blob('gif'); 
+    echo $qrHander;
+    // header("Content-type: image/jpeg");
     // imagepng($qrHander);

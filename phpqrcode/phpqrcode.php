@@ -1,6 +1,5 @@
 <?php
-use Grafika\Grafika;
-$editor = Grafika::createEditor();
+
 /*
  * PHP QR Code encoder
  *
@@ -943,8 +942,6 @@ $editor = Grafika::createEditor();
         //生成基础二维码后变成用户要求大小的放大倍数
         private static $magSize;
 
-        private static $qrcodesx;
-        private static $qrcodesy;
         //----------------------------------------------------------------------
         public static function png($frame, $filename = false, $pixelPerPoint = 5, $outerFrame = 5,$saveandprint=FALSE,$mode,$other) 
         {
@@ -956,8 +953,8 @@ $editor = Grafika::createEditor();
                 case 'background':
                     $image = self::imageBackground($frame, $pixelPerPoint, $outerFrame,$other['filePath']);
                     break;
-                case 'string':
-                    $image = self::imageString($frame,$other['string']);
+                case 'emoji':
+                    $image = self::imageEmoji($frame,$other['emoji']);
                     break;
                 default:
                     echo '选择模式';
@@ -969,9 +966,8 @@ $editor = Grafika::createEditor();
                 return;
             }
             if ($filename === false) {
-                Header("Content-type: image/gif");
-                $image->blob('gif');
-                // ImagePng($image);
+                Header("Content-type: image/png");
+                ImagePng($image);
             } else {
                 if($saveandprint===TRUE){
                     ImagePng($image, $filename);
@@ -1001,18 +997,18 @@ $editor = Grafika::createEditor();
             ImageDestroy($image);
         }
 
-        private static function imageString($frame,$string)
+        private static function imageEmoji($frame,$emoji)
         {   
             $h = count($frame);
             $w = strlen($frame[0]);
             ob_start();
-            echo '<table cellpadding="0px">';
+            echo '<table cellpadding="-20px" style="border:-2px;">';
             for($y=0; $y<$h; $y++) {
                 echo '<tr>';
                 for($x=0; $x<$w; $x++) {
                     echo '<td>';
                     if ($frame[$y][$x]=='1'){
-                            echo $string;
+                            echo $emoji;
                     }else{
                         echo '&nbsp;';
                     }
@@ -1101,44 +1097,43 @@ $editor = Grafika::createEditor();
             return self::imageMerage($target_image,$backGroundPath);
         }
 
-        // private static function createImage($image)
-        // {
-        //     try{
-        //         $type = strtolower(pathinfo($image, PATHINFO_EXTENSION));
-        //     }catch(Exception $e){
-        //         return '未知图片格式';
-        //     }
-        //     switch ($type) {
-        //         case 'jpg'||'jpeg':
-        //             $img = imagecreatefromjpeg($image);
-        //             break;
-        //         case 'png':
-        //             $img = imagecreatefrompng($image);
-        //             break;
-        //         case 'bmp':
-        //             $img = imagecreatefrombmp($image);
-        //             break;
-        //         case 'gif':
-        //             //TODO
-        //         break;
-        //         default:
-        //             return '未知图片格式';
-        //     }
-        //     return $img;
-        // }
+        private static function createImage($image)
+        {
+            try{
+                $type = strtolower(pathinfo($image, PATHINFO_EXTENSION));
+            }catch(Exception $e){
+                return '未知图片格式';
+            }
+            switch ($type) {
+                case 'jpg'||'jpeg':
+                    $img = imagecreatefromjpeg($image);
+                    break;
+                case 'png':
+                    $img = imagecreatefrompng($image);
+                    break;
+                case 'bmp':
+                    $img = imagecreatefrombmp($image);
+                    break;
+                case 'gif':
+                    //TODO
+                break;
+                default:
+                    return '未知图片格式';
+            }
+            return $img;
+        }
 
         private static function imageMerage($targetQRcode,$backGroundPath)
         {
-            $editor = Grafika::createEditor();
-            $editor->open( $background, $backGroundPath);
-            // $background = self::createImage($backGroundPath);
-            self::$qrcodesx = imagesx($targetQRcode);
-            self::$qrcodesy = imagesy($targetQRcode);
-            // $background =imagecreatetruecolor(self::$qrcodesx,$qrcodesy);
-            $editor->resizeExact($background , self::$qrcodesx , self::$qrcodesy);
-            $editor->blend ( $background, $targetQRcode , 'normal', 1, 'center');
+            $background = self::createImage($backGroundPath);
+            $qrcodesx = imagesx($targetQRcode);
+            $qrcodesy = imagesy($targetQRcode);
+            $background =imagecreatetruecolor($qrcodesx,$qrcodesy);
+            ImageCopyResized($background, $img, 0, 0, 0, 0,$qrcodesx,$qrcodesy,imagesx($img), imagesy($img));
 
-            // imagecopyResized($background, $targetQRcode, 0, 0, 0, 0, imagesx($background), imagesy($background),$qrcodesx, $qrcodesy);
+            ImageDestroy($img);
+
+            imagecopyResized($background, $targetQRcode, 0, 0, 0, 0, imagesx($background), imagesy($background),$qrcodesx, $qrcodesy);
 
             return $background;
         } 
