@@ -942,6 +942,27 @@
         //生成基础二维码后变成用户要求大小的放大倍数
         private static $magSize;
 
+        public static $existsImagick;
+
+        private static $qrcodesW;
+        private static $qrcodesH;
+        
+        private static function haveImagick()
+        {
+            if (extension_loaded('imagick') ||
+            class_exists('Imagick') ||
+            class_exists('ImagickDraw') ||
+            class_exists('ImagickPixel') ||
+            class_exists('ImagickPixelIterator')
+            ) {
+                self::$existsImagick = true;
+                return true;
+            }else{
+                self::$existsImagick = false;
+                return false;
+            }
+        }
+
         //----------------------------------------------------------------------
         public static function png($frame, $filename = false, $pixelPerPoint = 5, $outerFrame = 5,$saveandprint=FALSE,$mode,$other) 
         {
@@ -951,7 +972,7 @@
                     $image = self::image($frame, $pixelPerPoint, $outerFrame);
                     break;              
                 case 'background':
-                    $image = self::imageBackground($frame, $pixelPerPoint, $outerFrame,$other['filePath']);
+                    $image = self::imageBackground($frame, $pixelPerPoint, $outerFrame,realpath($other['filePath']));
                     break;
                 case 'emoji':
                     $image = self::imageEmoji($frame,$other['emoji']);
@@ -1097,15 +1118,19 @@
             return self::imageMerage($target_image,$backGroundPath);
         }
 
+
+
         private static function createImage($image)
         {
-            try{
-                $type = strtolower(pathinfo($image, PATHINFO_EXTENSION));
-            }catch(Exception $e){
-                return '未知图片格式';
-            }
+            $type = strtolower(pathinfo($image, PATHINFO_EXTENSION));
+            // try{
+            //     $type = strtolower(pathinfo($image, PATHINFO_EXTENSION));
+            // }catch(Exception $e){
+            //     return '未知图片格式';
+            // }
             switch ($type) {
-                case 'jpg'||'jpeg':
+                case 'jpg':
+                case 'jpeg':
                     $img = imagecreatefromjpeg($image);
                     break;
                 case 'png':
@@ -1115,28 +1140,42 @@
                     $img = imagecreatefrombmp($image);
                     break;
                 case 'gif':
-                    //TODO
-                break;
+                    $imagick = self::haveImagick();
+                    if ($imagick) {
+                        $img = new Imagick($image); 
+                    } else {
+                        $img = imagecreatefromgif($image);
+                    }
+                    
+                    break;
                 default:
-                    return '未知图片格式';
+                    return '暂不支持的图片格式';
             }
             return $img;
         }
 
         private static function imageMerage($targetQRcode,$backGroundPath)
         {
-            $background = self::createImage($backGroundPath);
-            $qrcodesx = imagesx($targetQRcode);
-            $qrcodesy = imagesy($targetQRcode);
-            $background =imagecreatetruecolor($qrcodesx,$qrcodesy);
-            ImageCopyResized($background, $img, 0, 0, 0, 0,$qrcodesx,$qrcodesy,imagesx($img), imagesy($img));
+            self::$qrcodesW = imagesx($targetQRcode);
+            self::$qrcodesH = imagesy($targetQRcode);
+            $img = self::createImage($backGroundPath);
+            $background = self::backgroundResized($img);
 
-            ImageDestroy($img);
-
-            imagecopyResized($background, $targetQRcode, 0, 0, 0, 0, imagesx($background), imagesy($background),$qrcodesx, $qrcodesy);
+            imagecopyResized($background, $targetQRcode, 0, 0, 0, 0, imagesx($background), imagesy($background),self::$qrcodesW,self::$qrcodesH);
 
             return $background;
         } 
+
+        private static function backgroundResized($img){
+            if ($img instanceof Imagick) {
+                
+            } else {
+                $background =imagecreatetruecolor(self::$qrcodesW,self::$qrcodesH);
+                ImageCopyResized($background, $img, 0, 0, 0, 0,self::$qrcodesW,self::$qrcodesH,imagesx($img), imagesy($img));
+                ImageDestroy($img);
+                return $background;
+            }
+        }
 
         private static function image($frame, $pixelPerPoint = 4, $outerFrame = 4) 
         {

@@ -4,13 +4,26 @@ include 'phpqrcode/phpqrcode.php';
         'data'  	=> 'http://www.baidu.com',
         'level'     => 'H',
         'size'	    => 15,
-        'mode'      => 'emoji',
-        'other'     => array('filePath' => '', 
+        'mode'      => 'background',
+        'other'     => array('filePath' => 'example\example_gif.gif', 
                              'emoji'    => '😊'
                         )
-    );  
-    $qrHander = \QRcode::png($qrConf['data'], 'output.png', 'H', $qrConf['size'],0,$saveandprint=false,$qrConf['mode'],$qrConf['other']);
+    );
+    if (is_file($qrConf['other']['filePath'])===false) {
+        echo '文件不存在！';
+        exit;
+    }
+    $isPic = exif_imagetype($qrConf['other']['filePath']);
+    if ($isPic === false) {
+        echo '图片格式有误';
+        exit;
+    }
+    $fileInfo = pathinfo($qrConf['other']['filePath']);
+    if ($qrConf['other']['filePath']!='') 
+        $outFile = 'temp'.DIRECTORY_SEPARATOR.md5($fileInfo['filename'].time()).'.'.$fileInfo['extension'];
+    $qrHander = \QRcode::png($qrConf['data'], $outFile, 'H', $qrConf['size'],0,$saveandprint=false,$qrConf['mode'],$qrConf['other']);
 
-    echo $qrHander;
-    // header("Content-type: image/jpeg");
-    // imagepng($qrHander);
+    // echo $qrHander;
+    header("Content-type: image/gif");
+    imagepng($qrHander);
+
