@@ -1163,14 +1163,18 @@ class QRimage
         self::$qrcodesW = imagesx($targetQRcode);
         self::$qrcodesH = imagesy($targetQRcode);
         $img = self::createImage($backGroundPath);
-        $background = self::backgroundResized($img);
+        $qrcode = $background = self::backgroundResized($img);
 
         if ($background instanceof Imagick) {
             $targetQRcode = new Imagick(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.self::$tempQRcode);
             $background = $background->coalesceImages();
             do {
                 $background->compositeImage($targetQRcode,Imagick::COMPOSITE_DEFAULT,0,0);
-            } while ($background->nextImage());            
+            } while ($background->nextImage()); 
+            do {
+                $qrcode->compositeImage($background,Imagick::COMPOSITE_DEFAULT,0,0);
+            } while ($background->nextImage());
+            $background = $background->deconstructImages();             
             $background->writeImages(self::$outputFile, true);
         } else{
             imagecopyResized($background, $targetQRcode, 0, 0, 0, 0, imagesx($background), imagesy($background), self::$qrcodesW, self::$qrcodesH);

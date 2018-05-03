@@ -5,7 +5,7 @@ $qrConf = array(
     'level' => 'H',
     'size' => 15,
     'mode' => 'background',
-    'other' => array('filePath' => 'example\gif.gif',
+    'other' => array('filePath' => 'example\example.gif',
         'emoji' => '😊',
     ),
 );
