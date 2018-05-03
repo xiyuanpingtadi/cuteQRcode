@@ -1,11 +1,11 @@
 <?php
 include 'phpqrcode/phpqrcode.php';
 $qrConf = array(
-    'data' => 'http://www.baidu.com',
+    'data' => 'https://github.com/',
     'level' => 'H',
     'size' => 15,
     'mode' => 'background',
-    'other' => array('filePath' => 'example\example.gif',
+    'other' => array('filePath' => 'example\example.jpg',
         'emoji' => '😊',
     ),
 );
