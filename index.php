@@ -31,5 +31,4 @@ if ($qrConf['other']['filePath'] != '') {
 $qrHander = QRcode::png($qrConf['data'], $outFile, 'H', $qrConf['size'], 0, $saveandprint = false, $qrConf['mode'], $qrConf['other']);
 
 // echo $qrHander;
-header("Content-type: image/gif");
-imagepng($qrHander);
+if ($qrHander) echo '成功!';

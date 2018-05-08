@@ -1,5 +1,6 @@
 <?php
 namespace Qrcode\PHPQRcode;
+
 class QRspec
 {
 

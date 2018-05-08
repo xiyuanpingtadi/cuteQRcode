@@ -1,7 +1,7 @@
 <?php
-namespace \Qrcode\PHPQRcode;
+namespace Qrcode\PHPQRcode;
 
-class qrstr
+class QRstr
 {
     public static function set(&$srctab, $x, $y, $repl, $replLen = false)
     {
