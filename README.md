@@ -4,7 +4,8 @@
 ## 示例
 ![](https://raw.githubusercontent.com/xiyuanpingtadi/cuteQRcode/master/temp/f026baf9ac80b64cb223a8a56c61d738.gif)  
 ![](https://raw.githubusercontent.com/xiyuanpingtadi/cuteQRcode/master/temp/38c75f3c2621311e1f8a09a6c92a85f3.jpg)  
+
 ## TODO
 - [ ] 加入页边距支持  
-- [ ] 容错率可以自由调整
-- [ ] 尺寸可调节
+- [X] 容错率可以自由调整
+- [X] 尺寸可调节

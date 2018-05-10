@@ -45,8 +45,8 @@ class QRimage
             case 'background':
                 $image = self::imageBackground($frame, $pixelPerPoint, $outerFrame, realpath($other['filePath']));
                 break;
-            case 'emoji':
-                $image = self::imageEmoji($frame, $other['emoji']);
+            case 'char':
+                $image = self::imageChar($frame, $other['char']);
                 break;
             default:
                 echo '选择模式';
@@ -89,7 +89,7 @@ class QRimage
         ImageDestroy($image);
     }
 
-    private static function imageEmoji($frame, $emoji)
+    private static function imageChar($frame, $char)
     {
         $h = count($frame);
         $w = strlen($frame[0]);
@@ -100,7 +100,7 @@ class QRimage
             for ($x = 0; $x < $w; $x++) {
                 echo '<td>';
                 if ($frame[$y][$x] == '1') {
-                    echo $emoji;
+                    echo $char;
                 } else {
                     echo '&nbsp;';
                 }
