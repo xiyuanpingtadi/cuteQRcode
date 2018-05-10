@@ -4,6 +4,7 @@
 ## 示例
 ![](https://raw.githubusercontent.com/xiyuanpingtadi/cuteQRcode/master/temp/f026baf9ac80b64cb223a8a56c61d738.gif)  
 ![](https://raw.githubusercontent.com/xiyuanpingtadi/cuteQRcode/master/temp/38c75f3c2621311e1f8a09a6c92a85f3.jpg)  
+![](https://raw.githubusercontent.com/xiyuanpingtadi/cuteQRcode/master/temp/739315c390ce5dde2e211e5bd2c06380.jpg)  
 
 ## TODO
 - [ ] 加入页边距支持  
