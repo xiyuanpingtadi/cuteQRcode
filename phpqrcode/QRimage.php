@@ -34,7 +34,7 @@ class QRimage
     }
 
     //----------------------------------------------------------------------
-    public static function png($frame, $filename = false, $pixelPerPoint = 5, $outerFrame = 5, $saveandprint = false, $mode, $other)
+    public static function png($frame, $filename = false, $pixelPerPoint, $outerFrame = 5, $saveandprint = false, $mode, $other)
     {
         self::$outputFile = $filename;
         $mode = strtolower($mode);
@@ -115,26 +115,28 @@ class QRimage
     }
 
     //用图片作为整张二维码的背景图
-    private static function imageBackground($frame, $pixelPerPoint = 4, $outerFrame = 4, $backGroundPath)
+    //$pixelPerPoint 原图中每点
+    private static function imageBackground($frame, $pixelPerPoint, $outerFrame = 4, $backGroundPath)
     {
         $h = count($frame);
         $w = strlen($frame[0]);
 
+        //生成基础二维码后变成用户要求大小的放大倍数，放大倍数计算
         self::$magSize = ($pixelPerPoint / self::basePixel);
         $imgW = $w * self::basePixel;
         $imgH = $h * self::basePixel;
 
         $base_image = ImageCreate($imgW, $imgH);
 
-        $col[0] = ImageColorAllocatealpha($base_image, 255, 255, 255, 0);
-        $col[1] = ImageColorAllocatealpha($base_image, 0, 0, 0, 0);
-        $alpha = ImageColorAllocatealpha($base_image, 0, 0, 0, 127);
+        $col[0] = ImageColorAllocatealpha($base_image, 255, 255, 255, 0);//白点
+        $col[1] = ImageColorAllocatealpha($base_image, 0, 0, 0, 0);//黑点
+        $pixel = ImageColorAllocatealpha($base_image, 168,168,168, 100);//像素点半透明背景
+        $alpha = ImageColorAllocatealpha($base_image, 0, 0, 0, 127);//透明部分
 
-        imagefill($base_image, 0, 0, $alpha);
-
-        //黑点
+        imagefill($base_image, 0, 0, $pixel);
         for ($y = 0; $y < $h; $y++) {
             for ($x = 0; $x < $w; $x++) {
+                //黑点
                 if ($frame[$y][$x] == '1') {
                     for ($i = 0; $i < 5; $i++) {
                         for ($j = 0; $j < 5; $j++) {
