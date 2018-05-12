@@ -34,7 +34,7 @@ class QRimage
     }
 
     //----------------------------------------------------------------------
-    public static function png($frame, $filename = false, $pixelPerPoint, $outerFrame = 5, $saveandprint = false, $mode, $other)
+    public static function png($frame, $filename = false, $pixelPerPoint, $outerFrame = 5, $saveandprint = false, $mode, $other, $alpha)
     {
         self::$outputFile = $filename;
         $mode = strtolower($mode);
@@ -43,7 +43,7 @@ class QRimage
                 $image = self::image($frame, $pixelPerPoint, $outerFrame);
                 break;
             case 'background':
-                $image = self::imageBackground($frame, $pixelPerPoint, $outerFrame, realpath($other['filePath']));
+                $image = self::imageBackground($frame, $pixelPerPoint, $outerFrame, realpath($other['filePath']), $alpha);
                 break;
             case 'char':
                 $image = self::imageChar($frame, $other['char']);
@@ -116,7 +116,7 @@ class QRimage
 
     //用图片作为整张二维码的背景图
     //$pixelPerPoint 原图中每点
-    private static function imageBackground($frame, $pixelPerPoint, $outerFrame = 4, $backGroundPath)
+    private static function imageBackground($frame, $pixelPerPoint, $outerFrame = 4, $backGroundPath, $alpha)
     {
         $h = count($frame);
         $w = strlen($frame[0]);
@@ -130,10 +130,10 @@ class QRimage
 
         $col[0] = ImageColorAllocatealpha($base_image, 255, 255, 255, 0);//白点
         $col[1] = ImageColorAllocatealpha($base_image, 0, 0, 0, 0);//黑点
-        $pixel = ImageColorAllocatealpha($base_image, 168,168,168, 100);//像素点半透明背景
-        $alpha = ImageColorAllocatealpha($base_image, 0, 0, 0, 127);//透明部分
+        $defaultAlpha = ($alpha===1)?ImageColorAllocatealpha($base_image, 168,168,168, 100):ImageColorAllocatealpha($base_image, 0, 0, 0, 127);
 
-        imagefill($base_image, 0, 0, $pixel);
+
+        imagefill($base_image, 0, 0, $defaultAlpha);
         for ($y = 0; $y < $h; $y++) {
             for ($x = 0; $x < $w; $x++) {
                 //黑点
@@ -196,11 +196,6 @@ class QRimage
     private static function createImage($image)
     {
         $type = strtolower(pathinfo($image, PATHINFO_EXTENSION));
-        // try{
-        //     $type = strtolower(pathinfo($image, PATHINFO_EXTENSION));
-        // }catch(Exception $e){
-        //     return '未知图片格式';
-        // }
         switch ($type) {
             case 'jpg':
             case 'jpeg':
