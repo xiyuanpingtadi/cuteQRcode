@@ -4,7 +4,9 @@ use \Qrcode\PHPQRcode\QRcode;
 include 'const.php';
 include 'config.php';
 include 'auto_load.php';
-
+if (php_uname('s')=='Windows NT') {
+    exec('chcp 65001');
+}
 if (is_file($config['other']['filePath']) === false) {
     echo '文件不存在！';
     exit;
@@ -19,6 +21,6 @@ if ($config['other']['filePath'] != '') {
     $outFile = dirname(__FILE__) . DIRECTORY_SEPARATOR .'temp' . DIRECTORY_SEPARATOR . md5($fileInfo['filename'] . time()) . '.' . $fileInfo['extension'];
 }
 
-$qrHander = QRcode::png($config['data'], $outFile, $config['level'], $config['size'], 0, $saveandprint = false, $config['mode'], $config['other'],$config['alpha']);
+$qrHander = QRcode::png($config['data'], $outFile, $config['level'], $config['size']/25, 0, $saveandprint = false, $config['mode'], $config['other'],$config['alpha']);
 
 if ($qrHander) echo '成功!';
