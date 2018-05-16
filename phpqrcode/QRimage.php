@@ -63,10 +63,11 @@ class QRimage
 //            header("Content-type: image/png");
 //            ImagePng($image);
 //        } else {
-            // ImagePng($image, $filename);
+        if (!($background instanceof \Imagick)) {
+            ImagePng($image, $filename);
             return $image;
+        }
 //        }
-
         ImageDestroy($image);
     }
 
@@ -223,16 +224,16 @@ class QRimage
 
         if ($background instanceof \Imagick) {
             $targetQRcode = new \Imagick(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.self::$tempQRcode);
+            $background = $background->coalesceImages();
             do {
-                $background->compositeImage($background,\Imagick::COMPOSITE_DEFAULT,0,0);
+                $background->compositeImage($targetQRcode,\Imagick::COMPOSITE_DEFAULT,0,0);
             } while ($background->nextImage());
-            $qrcode = $background->coalesceImages(); 
-            do {
-                $qrcode->compositeImage($targetQRcode,\Imagick::COMPOSITE_DEFAULT,0,0);
-            } while ($qrcode->nextImage());
-            $qrcode = $qrcode->deconstructImages();             
-            $qrcode->writeImages(self::$outputFile, true);
-            return $qrcode;
+            // $qrcode = $background->coalesceImages(); 
+            // do {
+            //     $qrcode->compositeImage($targetQRcode,\Imagick::COMPOSITE_DEFAULT,0,0);
+            // } while ($qrcode->nextImage());
+            $background = $background->deconstructImages();             
+            $background->writeImages(self::$outputFile, true);
         } else{
             imagecopyResized($background, $targetQRcode, 0, 0, 0, 0, imagesx($background), imagesy($background), self::$qrcodesW, self::$qrcodesH);
         }
