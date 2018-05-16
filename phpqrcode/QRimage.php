@@ -63,7 +63,7 @@ class QRimage
 //            header("Content-type: image/png");
 //            ImagePng($image);
 //        } else {
-            ImagePng($image, $filename);
+            // ImagePng($image, $filename);
             return $image;
 //        }
 
@@ -201,7 +201,7 @@ class QRimage
             case 'gif':
                 $imagick = self::haveImagick();
                 if ($imagick) {
-                    $img = new Imagick($image);
+                    $img = new \Imagick($image);
                     $img = $img->coalesceImages();
                 } else {
                     $img = imagecreatefromgif($image);
@@ -219,19 +219,20 @@ class QRimage
         self::$qrcodesW = imagesx($targetQRcode);
         self::$qrcodesH = imagesy($targetQRcode);
         $img = self::createImage($backGroundPath);
-        $qrcode = $background = self::backgroundResized($img);
+        $background = self::backgroundResized($img);
 
-        if ($background instanceof Imagick) {
-            $targetQRcode = new Imagick(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.self::$tempQRcode);
-            $background = $background->coalesceImages();
+        if ($background instanceof \Imagick) {
+            $targetQRcode = new \Imagick(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.self::$tempQRcode);
             do {
-                $background->compositeImage($targetQRcode,Imagick::COMPOSITE_DEFAULT,0,0);
-            } while ($background->nextImage()); 
-            do {
-                $qrcode->compositeImage($background,Imagick::COMPOSITE_DEFAULT,0,0);
+                $background->compositeImage($background,\Imagick::COMPOSITE_DEFAULT,0,0);
             } while ($background->nextImage());
-            $background = $background->deconstructImages();             
-            $background->writeImages(self::$outputFile, true);
+            $qrcode = $background->coalesceImages(); 
+            do {
+                $qrcode->compositeImage($targetQRcode,\Imagick::COMPOSITE_DEFAULT,0,0);
+            } while ($qrcode->nextImage());
+            $qrcode = $qrcode->deconstructImages();             
+            $qrcode->writeImages(self::$outputFile, true);
+            return $qrcode;
         } else{
             imagecopyResized($background, $targetQRcode, 0, 0, 0, 0, imagesx($background), imagesy($background), self::$qrcodesW, self::$qrcodesH);
         }
@@ -241,9 +242,9 @@ class QRimage
 
     private static function backgroundResized($img)
     {
-        if ($img instanceof Imagick) {
+        if ($img instanceof \Imagick) {
             do {
-                $img->resizeImage(self::$qrcodesH, self::$qrcodesW, Imagick::FILTER_BOX, 1);
+                $img->resizeImage(self::$qrcodesH, self::$qrcodesW, \Imagick::FILTER_BOX, 1);
             } while ($img->nextImage());
             $img = $img->deconstructImages();
             return $img;

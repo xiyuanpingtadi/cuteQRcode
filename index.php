@@ -20,7 +20,9 @@ $fileInfo = pathinfo($config['other']['filePath']);
 if ($config['other']['filePath'] != '') {
     $outFile = dirname(__FILE__) . DIRECTORY_SEPARATOR .'temp' . DIRECTORY_SEPARATOR . md5($fileInfo['filename'] . time()) . '.' . $fileInfo['extension'];
 }
-
+$startTime = microtime(true);
 $qrHander = QRcode::png($config['data'], $outFile, $config['level'], $config['size']/25, 0, $saveandprint = false, $config['mode'], $config['other'],$config['alpha']);
-
+$endTime = microtime(true);
+$runTime = ($endTime-$startTime)*1000 . ' ms';
+echo $runTime;
 if ($qrHander) echo '成功!';
